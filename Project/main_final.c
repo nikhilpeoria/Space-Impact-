@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "acceleration.h"
 #include "board_io.h"
 #include "common_macros.h"
 #include "gpio.h"
@@ -12,15 +13,10 @@
 #include "semphr.h"
 #include "sj2_cli.h"
 #include <math.h>
-typedef void (*function_pointer_t)(void);
-void gpio0__attach_interrupt(uint32_t pin, function_pointer_t callback);
-void gpio0__interrupt_dispatcher(void);
-uint32_t find_pin_that_generated_interrupt();
-void clear_pin_interrupt(uint32_t);
-uint32_t getpos(uint32_t n);
 
-gpio_s sw1, sw2;
-int pos = 48;
+acceleration__axis_data_s acc;
+gpio_s sw1;
+int pos = 40;
 int enemy_y = 63;
 int enemy_x = 20;
 
@@ -31,198 +27,44 @@ int EnemyBullet1_pos_y[32];
 int EnemyBullet1_pos_x[32];
 int NumberOfBullet = -1; // index of
 int updatecount = 0;
-// SemaphoreHandle_t switch_pressed_signal;
 int generate_new_bullet = 0;
 int generate_new_space_ship = 0;
 int SpaceShipBullet_pos_x[50];
 int SpaceShipBullet_pos_y[50];
 int NumberOfBulletS = -1;
-static function_pointer_t gpio0_falling_callbacks[32];
 int KillEnemyShip1 = 0;
 int KillEnemyShip2 = 0;
-// static volatile uint8_t slave_memory[256];
 
-/*bool i2c_slave_callback__read_memory(uint8_t memory_index, uint8_t *memory_value) {
-  *memory_value = slave_memory[memory_index];
-  return true;
-}
-
-bool i2c_slave_callback__write_memory(uint8_t memory_index, uint8_t memory_value) {
-  slave_memory[memory_index] = memory_value;
-  return true;
-}*/
-
-void gpio0__attach_interrupt(uint32_t pin, function_pointer_t callback) {
-  gpio0_falling_callbacks[pin] = callback;
-  LPC_GPIOINT->IO0IntEnF |= (1 << pin);
-}
-
-void gpio0__interrupt_dispatcher(void) {
-
-  function_pointer_t attached_user_handler_falling;
-  const uint32_t pin = find_pin_that_generated_interrupt();
-  if (LPC_GPIOINT->IO0IntStatF)
-    attached_user_handler_falling = gpio0_falling_callbacks[pin];
-
-  attached_user_handler_falling();
-  clear_pin_interrupt(pin);
-}
-
-uint32_t getpos(uint32_t n) {
-  uint32_t i;
-  uint32_t temp = 1;
-  for (i = 0; i <= 31; i++) {
-    temp = (1 << i);
-    if (n & temp)
-      break;
-  }
-  return i;
-}
-
-uint32_t find_pin_that_generated_interrupt() {
-  uint32_t pin = 0;
-  pin = getpos(LPC_GPIOINT->IO0IntStatF);
-  return pin;
-}
-
-void clear_pin_interrupt(uint32_t pin) { LPC_GPIOINT->IO0IntClr |= (1 << pin); }
-
-void pin30_isr(void) {
-  /*displaySpaceShip(pos, Black);
-  displaySpaceShip(++pos, Red);*/
+void button_interrupt(void) {
   generate_new_bullet = 1;
+  LPC_GPIOINT->IO0IntClr = (1 << 29);
 }
-void pin29_isr(void) {
-  /*displaySpaceShip(pos, Black);
-  displaySpaceShip(--pos, Red);*/
-  generate_new_space_ship = 1;
-}
-void Boom(int center_y, int space_ship_x) {
-  int start_y = center_y;
-  int start_x = space_ship_x;
-  displayPixel(start_x, start_y, Yellow);
-  delay__ms(14);
-  displayPixel(start_x - 1, start_y, Yellow);
-  displayPixel(start_x + 1, start_y, Yellow);
-  displayPixel(start_x, start_y - 1, Yellow);
-  displayPixel(start_x, start_y + 1, Yellow);
-  displayPixel(start_x - 1, start_y - 1, Yellow);
-  displayPixel(start_x - 1, start_y + 1, Yellow);
-  displayPixel(start_x + 1, start_y - 1, Yellow);
-  displayPixel(start_x + 1, start_y + 1, Yellow);
-  delay__ms(14);
-  displayPixel(start_x - 2, start_y, Yellow);
-  displayPixel(start_x + 2, start_y, Yellow);
-  displayPixel(start_x, start_y - 2, Yellow);
-  displayPixel(start_x, start_y + 2, Yellow);
-  displayPixel(start_x - 1, start_y - 2, Yellow);
-  displayPixel(start_x + 1, start_y - 2, Yellow);
-  displayPixel(start_x - 1, start_y + 2, Yellow);
-  displayPixel(start_x + 1, start_y + 2, Yellow);
-  displayPixel(start_x - 2, start_y - 1, Yellow);
-  displayPixel(start_x - 2, start_y + 1, Yellow);
-  displayPixel(start_x + 2, start_y - 1, Yellow);
-  displayPixel(start_x + 2, start_y + 1, Yellow);
-  displayPixel(start_x - 2, start_y - 2, Yellow);
-  displayPixel(start_x - 2, start_y + 2, Yellow);
-  displayPixel(start_x + 2, start_y - 2, Yellow);
-  displayPixel(start_x + 2, start_y + 2, Yellow);
-  delay__ms(14);
-  displayPixel(start_x - 3, start_y, Yellow);
-  displayPixel(start_x + 3, start_y, Yellow);
-  displayPixel(start_x, start_y - 3, Yellow);
-  displayPixel(start_x, start_y + 3, Yellow);
-  displayPixel(start_x - 3, start_y - 1, Yellow);
-  displayPixel(start_x - 3, start_y - 2, Yellow);
-  displayPixel(start_x - 3, start_y + 1, Yellow);
-  displayPixel(start_x - 3, start_y + 2, Yellow);
-  displayPixel(start_x + 3, start_y - 1, Yellow);
-  displayPixel(start_x + 3, start_y - 2, Yellow);
-  displayPixel(start_x + 3, start_y + 1, Yellow);
-  displayPixel(start_x + 3, start_y + 2, Yellow);
-  displayPixel(start_x - 1, start_y - 3, Yellow);
-  displayPixel(start_x - 2, start_y - 3, Yellow);
-  displayPixel(start_x + 1, start_y - 3, Yellow);
-  displayPixel(start_x + 2, start_y - 3, Yellow);
-  displayPixel(start_x - 1, start_y + 3, Yellow);
-  displayPixel(start_x - 2, start_y + 3, Yellow);
-  displayPixel(start_x + 1, start_y + 3, Yellow);
-  displayPixel(start_x + 2, start_y + 3, Yellow);
-  delay__ms(14);
-  displayPixel(start_x, start_y, Black);
-  delay__ms(14);
-  displayPixel(start_x - 1, start_y, Black);
-  displayPixel(start_x + 1, start_y, Black);
-  displayPixel(start_x, start_y - 1, Black);
-  displayPixel(start_x, start_y + 1, Black);
-  displayPixel(start_x - 1, start_y - 1, Black);
-  displayPixel(start_x - 1, start_y + 1, Black);
-  displayPixel(start_x + 1, start_y - 1, Black);
-  displayPixel(start_x + 1, start_y + 1, Black);
-  delay__ms(14);
-  displayPixel(start_x - 2, start_y, Black);
-  displayPixel(start_x + 2, start_y, Black);
-  displayPixel(start_x, start_y - 2, Black);
-  displayPixel(start_x, start_y + 2, Black);
-  displayPixel(start_x - 1, start_y - 2, Black);
-  displayPixel(start_x + 1, start_y - 2, Black);
-  displayPixel(start_x - 1, start_y + 2, Black);
-  displayPixel(start_x + 1, start_y + 2, Black);
-  displayPixel(start_x - 2, start_y - 1, Black);
-  displayPixel(start_x - 2, start_y + 1, Black);
-  displayPixel(start_x + 2, start_y - 1, Black);
-  displayPixel(start_x + 2, start_y + 1, Black);
-  displayPixel(start_x - 2, start_y - 2, Black);
-  displayPixel(start_x - 2, start_y + 2, Black);
-  displayPixel(start_x + 2, start_y - 2, Black);
-  displayPixel(start_x + 2, start_y + 2, Black);
-  delay__ms(14);
-  displayPixel(start_x - 3, start_y, Black);
-  displayPixel(start_x + 3, start_y, Black);
-  displayPixel(start_x, start_y - 3, Black);
-  displayPixel(start_x, start_y + 3, Black);
-  displayPixel(start_x - 3, start_y - 1, Black);
-  displayPixel(start_x - 3, start_y - 2, Black);
-  displayPixel(start_x - 3, start_y + 1, Black);
-  displayPixel(start_x - 3, start_y + 2, Black);
-  displayPixel(start_x + 3, start_y - 1, Black);
-  displayPixel(start_x + 3, start_y - 2, Black);
-  displayPixel(start_x + 3, start_y + 1, Black);
-  displayPixel(start_x + 3, start_y + 2, Black);
-  displayPixel(start_x - 1, start_y - 3, Black);
-  displayPixel(start_x - 2, start_y - 3, Black);
-  displayPixel(start_x + 1, start_y - 3, Black);
-  displayPixel(start_x + 2, start_y - 3, Black);
-  displayPixel(start_x - 1, start_y + 3, Black);
-  displayPixel(start_x - 2, start_y + 3, Black);
-  displayPixel(start_x + 1, start_y + 3, Black);
-  displayPixel(start_x + 2, start_y + 3, Black);
-  delay__ms(14);
-}
-void MovingEnemyShip(void *p) {
+
+void MovingEnemyShip1(void *p) {
   while (1) {
     if (enemy_y >= 0) {
       displayEnemyShip1(enemy_x, enemy_y, Purple);
-      delay__ms(95);
+      delay__ms(70);
       displayEnemyShip1(enemy_x, enemy_y, Black);
       if (KillEnemyShip1 == 0) {
-        enemy_y--;
+        --enemy_y;
       } else {
-        enemy_y = -2;
+        enemy_y = -1;
+        KillEnemyShip1 = 0;
       }
-      delay__ms(95);
+      delay__ms(10);
     } else {
-      KillEnemyShip1 = 0;
       enemy_y = 63;
       enemy_x = rand();
       enemy_x = enemy_x % 65;
+
       if (enemy_x < 15) {
         enemy_x = 15;
       }
       if (enemy_x > 55) {
         enemy_x = 55;
       }
-      delay__ms(95);
+      delay__ms(10);
     }
   }
 }
@@ -231,19 +73,20 @@ void MovingEnemyShip2(void *p) {
   while (1) {
     if (enemy2_y >= 0) {
       displayEnemyShip2(enemy2_x, enemy2_y, SkyBlue, Red);
-      delay__ms(75);
+      delay__ms(70);
       displayEnemyShip2(enemy2_x, enemy2_y, Black, Black);
       if (KillEnemyShip2 == 0) {
         enemy2_y--;
       } else {
-        enemy2_y = -2;
+        enemy2_y = -1;
+        KillEnemyShip2 = 0;
       }
-      delay__ms(75);
+      delay__ms(10);
     } else {
-      KillEnemyShip2 = 0;
       enemy2_y = 63;
       enemy2_x = rand();
       enemy2_x = enemy2_x % 65;
+
       if (enemy_y >= 56) {
         if (enemy_x >= 32) {
           enemy2_x = enemy_x - 12;
@@ -257,11 +100,12 @@ void MovingEnemyShip2(void *p) {
         if (enemy2_x > 55) {
           enemy2_x = 55;
         }
+        delay__ms(10);
       }
-      delay__ms(75);
     }
   }
 }
+
 void UpdateEnemyBullet() {
   if (NumberOfBullet == -1 || EnemyBullet1_pos_y[0] >= 0) {
     NumberOfBullet++; // in this
@@ -284,8 +128,8 @@ void EnemyBullet(void *p) {
       UpdateEnemyBullet();
     } else {
       for (int i = 0; i <= NumberOfBullet; i++) {
-        displayPixel(EnemyBullet1_pos_x[i], EnemyBullet1_pos_y[i], Blue);
-        displayPixel(EnemyBullet1_pos_x[i], EnemyBullet1_pos_y[i] - 1, Blue);
+        displayPixel(EnemyBullet1_pos_x[i], EnemyBullet1_pos_y[i], White);
+        displayPixel(EnemyBullet1_pos_x[i], EnemyBullet1_pos_y[i] - 1, White);
       }
       delay__ms(35);
       for (int i = 0; i <= NumberOfBullet; i++) {
@@ -301,64 +145,48 @@ void EnemyBullet(void *p) {
         updatecount = 0;
       }
     }
-    delay__ms(35);
+    delay__ms(20);
   }
 }
+
+int getSpaceshipPos() {
+  int sp = 0;
+  acc = acceleration__get_data();
+  if ((acc.x < 3400) && (acc.x > 2048)) {
+    sp = 3;
+  } else if ((acc.x >= 3400) && (acc.x <= 4096)) {
+    sp = 3 + (acc.x - 3400) / 25;
+  }
+  if ((acc.x >= 0) && (acc.x <= 700)) {
+    sp = 32 + (acc.x / 25);
+  } else if ((acc.x > 700) && (acc.x < 2048)) {
+    sp = 60;
+  }
+  return sp;
+}
+
 void moveSpaceShip(void *p) {
   while (1) {
-    if (generate_new_space_ship == 1) {
-      displaySpaceShip(pos, Black);
-      displaySpaceShip(--pos, Red);
-      generate_new_space_ship = 0;
-    } else {
-      displaySpaceShip(pos, Red);
-    }
-    delay__ms(55);
+    pos = getSpaceshipPos();
+    displaySpaceShip(pos, White);
+    delay__ms(30);
+    displaySpaceShip(pos, Black);
   }
 }
+
 void SpaceShipBullet(void *p) {
   while (1) {
     if (generate_new_bullet == 1) {
-      if (NumberOfBulletS == -1) {
-        NumberOfBulletS++;
-        SpaceShipBullet_pos_x[NumberOfBulletS] = pos + 3;
-        SpaceShipBullet_pos_y[NumberOfBulletS] = 10;
-      } else {
-        if (SpaceShipBullet_pos_y[0] >= 63) {
-          for (int i = 0; i < NumberOfBulletS; i++) {
-            SpaceShipBullet_pos_x[i] = SpaceShipBullet_pos_x[i + 1];
-            SpaceShipBullet_pos_y[i] = SpaceShipBullet_pos_y[i + 1];
-          }
-          SpaceShipBullet_pos_x[NumberOfBulletS] = pos + 3;
-          SpaceShipBullet_pos_y[NumberOfBulletS] = 10;
-          // x = pos+3;, y = 10
-        } else {
-          NumberOfBulletS++;
-          SpaceShipBullet_pos_x[NumberOfBulletS] = pos + 3;
-          SpaceShipBullet_pos_y[NumberOfBulletS] = 10;
-        }
-      }
+      NumberOfBulletS++;
+      SpaceShipBullet_pos_x[NumberOfBulletS] = pos;
+      SpaceShipBullet_pos_y[NumberOfBulletS] = 10;
       generate_new_bullet = 0;
     }
-    if (NumberOfBulletS >= 0 && (matrixbuff[SpaceShipBullet_pos_x[0]][SpaceShipBullet_pos_y[0] + 1] != 0 ||
-                                 matrixbuff[SpaceShipBullet_pos_x[0]][SpaceShipBullet_pos_y[0] + 2] != 0)) {
-      if ((SpaceShipBullet_pos_x[0] <= enemy_x + 2) && (SpaceShipBullet_pos_x[0] >= enemy_x - 2) &&
-          (((SpaceShipBullet_pos_y[0] + 1 <= enemy_y) && (SpaceShipBullet_pos_y[0] + 1 >= enemy_y - 8)) ||
-           ((SpaceShipBullet_pos_y[0] + 2 <= enemy_y) && (SpaceShipBullet_pos_y[0] + 2 >= enemy_y - 8)))) {
-        Boom(SpaceShipBullet_pos_y[0] + 2, SpaceShipBullet_pos_x[0]);
-        KillEnemyShip1 = 1;
-      } else if ((SpaceShipBullet_pos_x[0] <= enemy2_x + 4) && (SpaceShipBullet_pos_x[0] >= enemy2_x - 4) &&
-                 (((SpaceShipBullet_pos_y[0] + 1 <= enemy2_y) && (SpaceShipBullet_pos_y[0] + 1 >= enemy2_y - 6)) ||
-                  ((SpaceShipBullet_pos_y[0] + 2 <= enemy2_y) && (SpaceShipBullet_pos_y[0] + 2 >= enemy2_y - 6)))) {
-        Boom(SpaceShipBullet_pos_y[0] + 2, SpaceShipBullet_pos_x[0]);
-        KillEnemyShip2 = 1;
-      }
-    }
     for (int i = 0; i <= NumberOfBulletS; i++) {
-      displayPixel(SpaceShipBullet_pos_x[i], SpaceShipBullet_pos_y[i], Blue);
-      displayPixel(SpaceShipBullet_pos_x[i], SpaceShipBullet_pos_y[i] + 1, Blue);
+      displayPixel(SpaceShipBullet_pos_x[i], SpaceShipBullet_pos_y[i], White);
+      displayPixel(SpaceShipBullet_pos_x[i], SpaceShipBullet_pos_y[i] + 1, White);
     }
-    delay__ms(35);
+    delay__ms(25);
     for (int i = 0; i <= NumberOfBulletS; i++) {
       displayPixel(SpaceShipBullet_pos_x[i], SpaceShipBullet_pos_y[i], Black);
       displayPixel(SpaceShipBullet_pos_x[i], SpaceShipBullet_pos_y[i] + 1, Black);
@@ -375,41 +203,52 @@ void SpaceShipBullet(void *p) {
         NumberOfBulletS--;
       }
     }
-    delay__ms(35);
+    for (int i = 0; i <= NumberOfBulletS; i++) {
+      if (matrixbuff[SpaceShipBullet_pos_x[i]][SpaceShipBullet_pos_y[i] + 2] != 0) {
+        if ((SpaceShipBullet_pos_x[i] <= enemy_x + 2) && (SpaceShipBullet_pos_x[i] >= enemy_x - 2) &&
+            (((SpaceShipBullet_pos_y[i] + 1 <= enemy_y) && (SpaceShipBullet_pos_y[i] + 1 >= enemy_y - 8)) ||
+             ((SpaceShipBullet_pos_y[i] + 2 <= enemy_y) && (SpaceShipBullet_pos_y[i] + 2 >= enemy_y - 8)))) {
+          KillAnimation(SpaceShipBullet_pos_y[i] + 2, SpaceShipBullet_pos_x[i]);
+          KillEnemyShip1 = 1;
+          SpaceShipBullet_pos_x[i] = SpaceShipBullet_pos_x[i + 1];
+          SpaceShipBullet_pos_y[i] = SpaceShipBullet_pos_y[i + 1];
+          NumberOfBulletS--;
+        } else if ((SpaceShipBullet_pos_x[i] <= enemy2_x + 4) && (SpaceShipBullet_pos_x[i] >= enemy2_x - 4) &&
+                   (((SpaceShipBullet_pos_y[i] + 1 <= enemy2_y) && (SpaceShipBullet_pos_y[i] + 1 >= enemy2_y - 6)) ||
+                    ((SpaceShipBullet_pos_y[i] + 2 <= enemy2_y) && (SpaceShipBullet_pos_y[i] + 2 >= enemy2_y - 6)))) {
+          KillAnimation(SpaceShipBullet_pos_y[i] + 2, SpaceShipBullet_pos_x[i]);
+          KillEnemyShip2 = 1;
+          SpaceShipBullet_pos_x[i] = SpaceShipBullet_pos_x[i + 1];
+          SpaceShipBullet_pos_y[i] = SpaceShipBullet_pos_y[i + 1];
+          NumberOfBulletS--;
+        }
+      }
+    }
+    delay__ms(25);
   }
 }
-// void spaceship(void *p) {
-//   while (1) {
-//     if (xSemaphoreTake(switch_pressed_signal, portMAX_DELAY)) {
-//       displaySpaceShip(++pos, 4);
-//     }
-//   }
-// }
 
 void refreshdisplay(void *p) {
   while (1) {
     display();
-    delay__ms(1);
+    vTaskDelay(2);
   }
 }
 
 int main(void) {
-  // i2c2__slave_init(0x86);
-  // switch_pressed_signal = xSemaphoreCreateBinary();
   sw1 = gpio__construct_as_input(0, 29);
-  sw2 = gpio__construct_as_input(0, 30);
+  LPC_GPIOINT->IO0IntEnF = (1 << 29);
   displayInit();
-  displaySpaceShip(pos, Red);
+  acceleration__init();
   EnemyBullet1_pos_y[0] = 1;
-  gpio0__attach_interrupt(30, pin30_isr);
-  gpio0__attach_interrupt(29, pin29_isr);
 
-  lpc_peripheral__enable_interrupt(LPC_PERIPHERAL__GPIO, gpio0__interrupt_dispatcher);
+  lpc_peripheral__enable_interrupt(LPC_PERIPHERAL__GPIO, button_interrupt);
   NVIC_EnableIRQ(GPIO_IRQn);
+
   xTaskCreate(moveSpaceShip, "MB", 1024U, 0, 2, 0);
   xTaskCreate(SpaceShipBullet, "SB", 1024U, 0, 2, 0);
   xTaskCreate(EnemyBullet, "EB", 1024U, 0, 2, 0);
-  xTaskCreate(MovingEnemyShip, "Enemy ship", 1024U, 0, 3, 0);
+  xTaskCreate(MovingEnemyShip1, "Enemy ship", 1024U, 0, 3, 0);
   xTaskCreate(MovingEnemyShip2, "Enemy ship", 1024U, 0, 3, 0);
   xTaskCreate(refreshdisplay, "refresh display", 1024U, 0, 4, 0);
 
