@@ -53,3 +53,4 @@ void displaySpaceShip(int pos, int color);
 void displayEnemyShip1(int pos, int initialize_y, int color);
 void displayEnemyShip2(int pos, int initialize_y, int color1, int color2);
 void displayPixel(int x, int y, int color);
+void KillAnimation(int start_y, int start_x);

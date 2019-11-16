@@ -56,37 +56,37 @@ void displayPixel(int x, int y, int color) {
 }
 
 void displaySpaceShip(int pos, int color) {
+  displayPixel(pos - 3, 0, color);
+  displayPixel(pos - 3, 1, color);
+  displayPixel(pos - 2, 1, color);
+  displayPixel(pos - 2, 2, color);
+  displayPixel(pos - 1, 2, color);
   displayPixel(pos, 0, color);
   displayPixel(pos, 1, color);
-  displayPixel(pos + 1, 1, color);
+  displayPixel(pos, 2, color);
+  displayPixel(pos, 3, color);
   displayPixel(pos + 1, 2, color);
   displayPixel(pos + 2, 2, color);
-  displayPixel(pos + 3, 0, color);
+  displayPixel(pos + 2, 1, color);
   displayPixel(pos + 3, 1, color);
-  displayPixel(pos + 3, 2, color);
-  displayPixel(pos + 3, 3, color);
-  displayPixel(pos + 4, 2, color);
-  displayPixel(pos + 5, 2, color);
-  displayPixel(pos + 5, 1, color);
-  displayPixel(pos + 6, 1, color);
-  displayPixel(pos + 6, 0, color);
+  displayPixel(pos + 3, 0, color);
+  displayPixel(pos - 2, 4, color);
+  displayPixel(pos - 1, 4, color);
+  displayPixel(pos, 4, color);
   displayPixel(pos + 1, 4, color);
   displayPixel(pos + 2, 4, color);
-  displayPixel(pos + 3, 4, color);
-  displayPixel(pos + 4, 4, color);
-  displayPixel(pos + 5, 4, color);
+  displayPixel(pos - 2, 5, color);
+  displayPixel(pos - 1, 5, color);
+  displayPixel(pos, 5, color);
   displayPixel(pos + 1, 5, color);
   displayPixel(pos + 2, 5, color);
-  displayPixel(pos + 3, 5, color);
-  displayPixel(pos + 4, 5, color);
-  displayPixel(pos + 5, 5, color);
-  displayPixel(pos + 1, 6, color);
-  displayPixel(pos + 3, 6, color);
-  displayPixel(pos + 5, 6, color);
-  displayPixel(pos + 2, 7, color);
-  displayPixel(pos + 4, 7, color);
-  displayPixel(pos + 3, 8, color);
-  displayPixel(pos + 3, 9, color);
+  displayPixel(pos - 2, 6, color);
+  displayPixel(pos, 6, color);
+  displayPixel(pos + 2, 6, color);
+  displayPixel(pos - 1, 7, color);
+  displayPixel(pos + 1, 7, color);
+  displayPixel(pos, 8, color);
+  displayPixel(pos, 9, color);
 }
 void displayEnemyShip1(int pos, int initialize_y, int color) {
   displayPixel(pos, initialize_y, color);
@@ -157,6 +157,107 @@ void displayEnemyShip2(int pos, int initialize_y, int color1, int color2) {
 
   displayPixel(pos, initialize_y - 6, color2);
 }
+
+void KillAnimation(int start_y, int start_x) {
+  displayPixel(start_x, start_y, Yellow);
+  delay__ms(14);
+  displayPixel(start_x - 1, start_y, Yellow);
+  displayPixel(start_x + 1, start_y, Yellow);
+  displayPixel(start_x, start_y - 1, Yellow);
+  displayPixel(start_x, start_y + 1, Yellow);
+  displayPixel(start_x - 1, start_y - 1, Yellow);
+  displayPixel(start_x - 1, start_y + 1, Yellow);
+  displayPixel(start_x + 1, start_y - 1, Yellow);
+  displayPixel(start_x + 1, start_y + 1, Yellow);
+  delay__ms(14);
+  displayPixel(start_x - 2, start_y, Yellow);
+  displayPixel(start_x + 2, start_y, Yellow);
+  displayPixel(start_x, start_y - 2, Yellow);
+  displayPixel(start_x, start_y + 2, Yellow);
+  displayPixel(start_x - 1, start_y - 2, Yellow);
+  displayPixel(start_x + 1, start_y - 2, Yellow);
+  displayPixel(start_x - 1, start_y + 2, Yellow);
+  displayPixel(start_x + 1, start_y + 2, Yellow);
+  displayPixel(start_x - 2, start_y - 1, Yellow);
+  displayPixel(start_x - 2, start_y + 1, Yellow);
+  displayPixel(start_x + 2, start_y - 1, Yellow);
+  displayPixel(start_x + 2, start_y + 1, Yellow);
+  displayPixel(start_x - 2, start_y - 2, Yellow);
+  displayPixel(start_x - 2, start_y + 2, Yellow);
+  displayPixel(start_x + 2, start_y - 2, Yellow);
+  displayPixel(start_x + 2, start_y + 2, Yellow);
+  delay__ms(14);
+  displayPixel(start_x - 3, start_y, Yellow);
+  displayPixel(start_x + 3, start_y, Yellow);
+  displayPixel(start_x, start_y - 3, Yellow);
+  displayPixel(start_x, start_y + 3, Yellow);
+  displayPixel(start_x - 3, start_y - 1, Yellow);
+  displayPixel(start_x - 3, start_y - 2, Yellow);
+  displayPixel(start_x - 3, start_y + 1, Yellow);
+  displayPixel(start_x - 3, start_y + 2, Yellow);
+  displayPixel(start_x + 3, start_y - 1, Yellow);
+  displayPixel(start_x + 3, start_y - 2, Yellow);
+  displayPixel(start_x + 3, start_y + 1, Yellow);
+  displayPixel(start_x + 3, start_y + 2, Yellow);
+  displayPixel(start_x - 1, start_y - 3, Yellow);
+  displayPixel(start_x - 2, start_y - 3, Yellow);
+  displayPixel(start_x + 1, start_y - 3, Yellow);
+  displayPixel(start_x + 2, start_y - 3, Yellow);
+  displayPixel(start_x - 1, start_y + 3, Yellow);
+  displayPixel(start_x - 2, start_y + 3, Yellow);
+  displayPixel(start_x + 1, start_y + 3, Yellow);
+  displayPixel(start_x + 2, start_y + 3, Yellow);
+  delay__ms(14);
+  displayPixel(start_x, start_y, Black);
+  delay__ms(14);
+  displayPixel(start_x - 1, start_y, Black);
+  displayPixel(start_x + 1, start_y, Black);
+  displayPixel(start_x, start_y - 1, Black);
+  displayPixel(start_x, start_y + 1, Black);
+  displayPixel(start_x - 1, start_y - 1, Black);
+  displayPixel(start_x - 1, start_y + 1, Black);
+  displayPixel(start_x + 1, start_y - 1, Black);
+  displayPixel(start_x + 1, start_y + 1, Black);
+  delay__ms(14);
+  displayPixel(start_x - 2, start_y, Black);
+  displayPixel(start_x + 2, start_y, Black);
+  displayPixel(start_x, start_y - 2, Black);
+  displayPixel(start_x, start_y + 2, Black);
+  displayPixel(start_x - 1, start_y - 2, Black);
+  displayPixel(start_x + 1, start_y - 2, Black);
+  displayPixel(start_x - 1, start_y + 2, Black);
+  displayPixel(start_x + 1, start_y + 2, Black);
+  displayPixel(start_x - 2, start_y - 1, Black);
+  displayPixel(start_x - 2, start_y + 1, Black);
+  displayPixel(start_x + 2, start_y - 1, Black);
+  displayPixel(start_x + 2, start_y + 1, Black);
+  displayPixel(start_x - 2, start_y - 2, Black);
+  displayPixel(start_x - 2, start_y + 2, Black);
+  displayPixel(start_x + 2, start_y - 2, Black);
+  displayPixel(start_x + 2, start_y + 2, Black);
+  delay__ms(14);
+  displayPixel(start_x - 3, start_y, Black);
+  displayPixel(start_x + 3, start_y, Black);
+  displayPixel(start_x, start_y - 3, Black);
+  displayPixel(start_x, start_y + 3, Black);
+  displayPixel(start_x - 3, start_y - 1, Black);
+  displayPixel(start_x - 3, start_y - 2, Black);
+  displayPixel(start_x - 3, start_y + 1, Black);
+  displayPixel(start_x - 3, start_y + 2, Black);
+  displayPixel(start_x + 3, start_y - 1, Black);
+  displayPixel(start_x + 3, start_y - 2, Black);
+  displayPixel(start_x + 3, start_y + 1, Black);
+  displayPixel(start_x + 3, start_y + 2, Black);
+  displayPixel(start_x - 1, start_y - 3, Black);
+  displayPixel(start_x - 2, start_y - 3, Black);
+  displayPixel(start_x + 1, start_y - 3, Black);
+  displayPixel(start_x + 2, start_y - 3, Black);
+  displayPixel(start_x - 1, start_y + 3, Black);
+  displayPixel(start_x - 2, start_y + 3, Black);
+  displayPixel(start_x + 1, start_y + 3, Black);
+  displayPixel(start_x + 2, start_y + 3, Black);
+}
+
 void display() {
   for (uint8_t row = 0; row < 32; row++) {
     for (uint8_t col = 0; col < 64; col++) {
