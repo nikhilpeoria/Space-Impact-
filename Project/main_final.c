@@ -119,6 +119,7 @@ void UpdateEnemyBullet() {
     EnemyBullet1_pos_x[NumberOfBullet] = enemy_x;
   }
 }
+
 int getSpaceshipPos() {
   int sp = 0;
   acc = acceleration__get_data();
@@ -134,6 +135,64 @@ int getSpaceshipPos() {
   }
   return sp;
 }
+
+bool PixelCheckEnemy(int Enemyx, int Enemyy) {
+  if (Enemyx == pos && (Enemyy >= 0 && Enemyy <= 9)) {
+    return true;
+  }
+  if ((Enemyx == pos + 1 || Enemyx == pos - 1) && (Enemyy >= 2 && Enemyy <= 7)) {
+    return true;
+  }
+  if ((Enemyx == pos + 2 || Enemyx == pos - 2) && (Enemyy >= 1 && Enemyy <= 6)) {
+    return true;
+  }
+  if ((Enemyx == pos + 3 || Enemyx == pos - 3) && (Enemyy >= 0 && Enemyy <= 1)) {
+    return true;
+  }
+  return false;
+}
+
+void collisionDetectionEnemyShipToSpaceShip() {
+  if (PixelCheckEnemy(enemy_x, enemy_y) || PixelCheckEnemy(enemy_x, enemy_y - 1) ||
+      PixelCheckEnemy(enemy_x, enemy_y - 2) || PixelCheckEnemy(enemy_x, enemy_y - 3) ||
+      PixelCheckEnemy(enemy_x, enemy_y - 4) || PixelCheckEnemy(enemy_x, enemy_y - 5) ||
+      PixelCheckEnemy(enemy_x, enemy_y - 6) || PixelCheckEnemy(enemy_x, enemy_y - 7) ||
+      PixelCheckEnemy(enemy_x, enemy_y - 8) || PixelCheckEnemy(enemy_x + 1, enemy_y - 1) ||
+      PixelCheckEnemy(enemy_x + 1, enemy_y - 2) || PixelCheckEnemy(enemy_x + 1, enemy_y - 3) ||
+      PixelCheckEnemy(enemy_x + 1, enemy_y - 4) || PixelCheckEnemy(enemy_x + 1, enemy_y - 5) ||
+      PixelCheckEnemy(enemy_x + 1, enemy_y - 6) || PixelCheckEnemy(enemy_x + 1, enemy_y - 7) ||
+      PixelCheckEnemy(enemy_x - 1, enemy_y - 1) || PixelCheckEnemy(enemy_x - 1, enemy_y - 2) ||
+      PixelCheckEnemy(enemy_x - 1, enemy_y - 3) || PixelCheckEnemy(enemy_x - 1, enemy_y - 4) ||
+      PixelCheckEnemy(enemy_x - 1, enemy_y - 5) || PixelCheckEnemy(enemy_x - 1, enemy_y - 6) ||
+      PixelCheckEnemy(enemy_x - 1, enemy_y - 7) || PixelCheckEnemy(enemy_x + 2, enemy_y - 2) ||
+      PixelCheckEnemy(enemy_x + 2, enemy_y - 3) || PixelCheckEnemy(enemy_x + 2, enemy_y - 4) ||
+      PixelCheckEnemy(enemy_x - 2, enemy_y - 2) || PixelCheckEnemy(enemy_x - 2, enemy_y - 3) ||
+      PixelCheckEnemy(enemy_x - 2, enemy_y - 4)) {
+    SpaceShipLifeCount--;
+    changethecolor = 1;
+  } else if (PixelCheckEnemy(enemy2_x, enemy2_y) || PixelCheckEnemy(enemy2_x, enemy2_y - 1) ||
+             PixelCheckEnemy(enemy2_x, enemy2_y - 2) || PixelCheckEnemy(enemy2_x, enemy2_y - 3) ||
+             PixelCheckEnemy(enemy2_x, enemy2_y - 4) || PixelCheckEnemy(enemy2_x, enemy2_y - 5) ||
+             PixelCheckEnemy(enemy2_x, enemy2_y - 6) || PixelCheckEnemy(enemy2_x + 1, enemy2_y) ||
+             PixelCheckEnemy(enemy2_x + 1, enemy2_y - 1) || PixelCheckEnemy(enemy2_x + 1, enemy2_y - 2) ||
+             PixelCheckEnemy(enemy2_x + 1, enemy2_y - 3) || PixelCheckEnemy(enemy2_x + 1, enemy2_y - 4) ||
+             PixelCheckEnemy(enemy2_x + 1, enemy2_y - 5) || PixelCheckEnemy(enemy2_x - 1, enemy2_y) ||
+             PixelCheckEnemy(enemy2_x - 1, enemy2_y - 1) || PixelCheckEnemy(enemy2_x - 1, enemy2_y - 2) ||
+             PixelCheckEnemy(enemy2_x - 1, enemy2_y - 3) || PixelCheckEnemy(enemy2_x - 1, enemy2_y - 4) ||
+             PixelCheckEnemy(enemy2_x - 1, enemy2_y - 5) || PixelCheckEnemy(enemy2_x + 2, enemy2_y) ||
+             PixelCheckEnemy(enemy2_x + 2, enemy2_y - 1) || PixelCheckEnemy(enemy2_x + 2, enemy2_y - 2) ||
+             PixelCheckEnemy(enemy2_x + 2, enemy2_y - 3) || PixelCheckEnemy(enemy2_x - 2, enemy2_y) ||
+             PixelCheckEnemy(enemy2_x - 2, enemy2_y - 1) || PixelCheckEnemy(enemy2_x - 2, enemy2_y - 2) ||
+             PixelCheckEnemy(enemy2_x - 2, enemy2_y - 3) || PixelCheckEnemy(enemy2_x + 3, enemy2_y) ||
+             PixelCheckEnemy(enemy2_x + 3, enemy2_y - 1) || PixelCheckEnemy(enemy2_x + 3, enemy2_y - 2) ||
+             PixelCheckEnemy(enemy2_x - 3, enemy2_y) || PixelCheckEnemy(enemy2_x - 3, enemy2_y - 1) ||
+             PixelCheckEnemy(enemy2_x - 3, enemy2_y - 2) || PixelCheckEnemy(enemy2_x + 4, enemy2_y - 1) ||
+             PixelCheckEnemy(enemy2_x - 4, enemy2_y - 1)) {
+    SpaceShipLifeCount--;
+    changethecolor = 1;
+  }
+}
+
 void collisionDetectionBulletToEnemy() {
   for (int i = 0; i <= NumberOfBulletS; i++) {
     if ((SpaceShipBullet_pos_x[i] == enemy_x && SpaceShipBullet_pos_y[i] <= enemy_y &&
@@ -273,6 +332,7 @@ void moveSpaceShip(void *p) {
     pos = getSpaceshipPos();
     if (changethecolor == 0) {
       displaySpaceShip(pos, SkyBlue);
+      collisionDetectionEnemyShipToSpaceShip();
     } else {
       if (counter <= 5) {
         displaySpaceShip(pos, Red);
