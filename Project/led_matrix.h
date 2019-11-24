@@ -47,10 +47,19 @@ gpio_s OE;
 
 uint8_t matrixbuff[MATRIX_NROWS][MATRIX_HEIGHT];
 
-void displayInit();
-void display();
-void displaySpaceShip(int pos, int color);
-void displayEnemyShip1(int pos, int initialize_y, int color);
-void displayEnemyShip2(int pos, int initialize_y, int color1, int color2);
-void displayPixel(int x, int y, int color);
-void KillAnimation(int start_y, int start_x);
+void displayInit(void);
+void display(void);
+void ClearDisplay(void);
+void displayInitial(void);
+void displaySpaceShip(int row, int color);
+void displayEnemyShip1(int row, int col, int color);
+void displayEnemyShip2(int row, int col, int color1, int color2);
+void displayPixel(int row, int col, int color);
+void displayEnergyPoint(int row, int col, int color);
+void KillAnimation(int row, int col);
+void displayDigit(int digit, int row, int col, int color);
+void displayScore(int score, int row, int col, int color);
+void displayWord_SCORE(int row, int col, int color);
+void StartScreen(void);
+void displayEndScreen(int);
+void HealthMeter(int);
