@@ -711,6 +711,8 @@ void displayWord_SCORE(int row, int col, int color) {
 
 void display(void) {
   for (uint8_t row = 0; row < 32; row++) {
+    gpio__reset(LAT);
+    gpio__reset(OE);
     for (uint8_t col = 0; col < 64; col++) {
       if (matrixbuff[row][col] & 0x1) {
         gpio__set(B1);
@@ -775,9 +777,6 @@ void display(void) {
     if (row & 0x10) {
       gpio__set(E);
     }
-
-    gpio__reset(LAT);
-    gpio__reset(OE);
   }
 }
 
