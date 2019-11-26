@@ -37,6 +37,10 @@ int NumberOfBulletS = -1;
 int KillEnemyShip1 = 0;
 int KillEnemyShip2 = 0;
 
+int TriggerAnimation[10] = {0}; // 11252019 Bullet Blinking Purpose
+int KillAnimationPos[10][2];    // 11252019 Bullet Blinking Purpose
+int TriggerAnimationIndex = -1;
+
 int NumberOfBulletS_Remaining = -1;  // 11172019 collision detection purpose
 int SpaceShipBullet_remaining_x[10]; // 11172019 collision detection purpose
 int SpaceShipBullet_remaining_y[10]; // 11172019 collision detection purpose
@@ -201,7 +205,12 @@ void collisionDetectionBulletToEnemy() {
          (SpaceShipBullet_pos_y[i] <= enemy_y - 1 && SpaceShipBullet_pos_y[i] >= enemy_y - 7)) ||
         ((SpaceShipBullet_pos_x[i] == enemy_x + 2 || SpaceShipBullet_pos_x[i] == enemy_x - 2) &&
          (SpaceShipBullet_pos_y[i] <= enemy_y - 2 && SpaceShipBullet_pos_y[i] >= enemy_y - 4))) {
-      KillAnimation(SpaceShipBullet_pos_x[i], SpaceShipBullet_pos_y[i] + 2);
+      if (TriggerAnimationIndex < 9) {
+        TriggerAnimationIndex++;
+        TriggerAnimation[TriggerAnimationIndex] = 1;
+        KillAnimationPos[TriggerAnimationIndex][0] = SpaceShipBullet_pos_x[i];
+        KillAnimationPos[TriggerAnimationIndex][1] = SpaceShipBullet_pos_y[i] + 2;
+      }
       KillEnemyShip1 = 1;
       SpaceShipBullet_pos_x[i] = SpaceShipBullet_pos_x[i + 1];
       SpaceShipBullet_pos_y[i] = SpaceShipBullet_pos_y[i + 1];
@@ -219,7 +228,12 @@ void collisionDetectionBulletToEnemy() {
                 (SpaceShipBullet_pos_y[i] <= enemy2_y && SpaceShipBullet_pos_y[i] >= enemy2_y - 2)) ||
                ((SpaceShipBullet_pos_x[i] == enemy2_x + 4 || SpaceShipBullet_pos_x[i] == enemy2_x - 4) &&
                 (SpaceShipBullet_pos_y[i] == enemy2_y - 1))) {
-      KillAnimation(SpaceShipBullet_pos_x[i], SpaceShipBullet_pos_y[i] + 2);
+      if (TriggerAnimationIndex < 9) {
+        TriggerAnimationIndex++;
+        TriggerAnimation[TriggerAnimationIndex] = 1;
+        KillAnimationPos[TriggerAnimationIndex][0] = SpaceShipBullet_pos_x[i];
+        KillAnimationPos[TriggerAnimationIndex][1] = SpaceShipBullet_pos_y[i] + 2;
+      }
       KillEnemyShip2 = 1;
       SpaceShipBullet_pos_x[i] = SpaceShipBullet_pos_x[i + 1];
       SpaceShipBullet_pos_y[i] = SpaceShipBullet_pos_y[i + 1];
@@ -365,7 +379,7 @@ void LifeDisplay(void *p) {
 void SpaceShipBullet(void *p) {
   while (1) {
     if (generate_new_bullet == 1) {
-      if (NumberOfBulletS < 9) {
+      if (NumberOfBulletS < 3) {
         NumberOfBulletS++;
         SpaceShipBullet_pos_x[NumberOfBulletS] = pos;
         SpaceShipBullet_pos_y[NumberOfBulletS] = 10;
@@ -415,6 +429,17 @@ void TitleScreen(void *p) {
     }
   }
 }
+void KillAnimationTask(void *p) {
+  while (1) {
+    for (int i = 9; i >= 0; i--) {
+      if (TriggerAnimation[i] == 1) {
+        TriggerAnimation[i] = 0;
+        KillAnimation(KillAnimationPos[i][0], KillAnimationPos[i][1]);
+        TriggerAnimationIndex--;
+      }
+    }
+  }
+}
 
 int main(void) {
   sw1 = gpio__construct_as_input(0, 29);
@@ -431,6 +456,7 @@ int main(void) {
   xTaskCreate(moveSpaceShip, "MB", 2048U, 0, 1, &moveSpaceShip_handle);
   xTaskCreate(SpaceShipBullet, "SB", 2048U, 0, 1, &SpaceShipBullet_handle);
   xTaskCreate(EnemyBullet, "EB", 2048U, 0, 1, &EnemyBullet_handle);
+  xTaskCreate(KillAnimationTask, "KAT", 1024U, 0, 1, 0);
   xTaskCreate(MovingEnemyShip1, "Enemyship1", 2048U, 0, 2, &MovingEnemyShip1_handle);
   xTaskCreate(MovingEnemyShip2, "Enemyship2", 2048U, 0, 2, &MovingEnemyShip2_handle);
 
