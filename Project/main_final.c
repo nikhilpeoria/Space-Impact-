@@ -23,23 +23,38 @@ int enemy_x = 20;
 int enemy2_y = 63;
 int enemy2_x = 50;
 
+int UFO_y = 63;
+int UFO_x = 35;
+
 int EnemyBullet1_pos_y[16];
 int EnemyBullet1_pos_x[16];
+
+int EnemyBullet2_pos_y[3];
+int EnemyBullet2_pos_x[3];
+
+int ThreePhaseBullet = 0;
+int Limited_MoveMent = 0;
+int ThreePhaseCounter = 0;
+
 int NumberOfBullet = -1; // index of
 int updatecount = 0;
 int generate_new_bullet = 0;
 int generate_new_space_ship = 0;
 int StartGame = 0;
 
+int generate_super_weapon = 0;
 int SpaceShipBullet_pos_x[10];
 int SpaceShipBullet_pos_y[10];
 int NumberOfBulletS = -1;
 int KillEnemyShip1 = 0;
 int KillEnemyShip2 = 0;
-
+int KillUFO = 0;
 int TriggerAnimation[10] = {0}; // 11252019 Bullet Blinking Purpose
 int KillAnimationPos[10][2];    // 11252019 Bullet Blinking Purpose
 int TriggerAnimationIndex = -1;
+
+int supertrigger = 0;
+int superKillAnimationPos[2] = {0};
 
 int NumberOfBulletS_Remaining = -1;  // 11172019 collision detection purpose
 int SpaceShipBullet_remaining_x[10]; // 11172019 collision detection purpose
@@ -56,57 +71,134 @@ TaskHandle_t moveSpaceShip_handle;
 TaskHandle_t SpaceShipBullet_handle;
 TaskHandle_t EnemyBullet_handle;
 TaskHandle_t MovingEnemyShip1_handle;
-TaskHandle_t MovingEnemyShip2_handle;
 TaskHandle_t TitleScreen_handle;
 
 void button_interrupt(void) {
-  generate_new_bullet = 1;
-  StartGame = 1;
-  LPC_GPIOINT->IO0IntClr = (1 << 29);
+  if (((LPC_GPIOINT->IO0IntStatF >> 29) & (1 << 0)) == 1) {
+    generate_new_bullet = 1;
+    StartGame = 1;
+    LPC_GPIOINT->IO0IntClr = (1 << 29);
+  } else if (((LPC_GPIOINT->IO0IntStatR >> 30) & (1 << 0)) == 1) {
+    if (NumberOfBulletS == -1) {
+      generate_super_weapon = 1;
+    }
+    LPC_GPIOINT->IO0IntClr = (1 << 30);
+  }
 }
 
 void MovingEnemyShip1(void *p) {
   while (1) {
-    if (enemy_y >= 0) {
+    if (enemy_y >= 0 && enemy2_y >= 0 && UFO_y >= 0) {
+      displayEnemyShip1(enemy_x, enemy_y, Purple);
+      displayEnemyShip2(enemy2_x, enemy2_y, SkyBlue, Red);
+      displayUFO(UFO_x, UFO_y, Purple, Green, Blue);
+      delay__ms(70);
+      displayEnemyShip1(enemy_x, enemy_y, Black);
+      displayEnemyShip2(enemy2_x, enemy2_y, Black, Black);
+      displayUFO(UFO_x, UFO_y, Black, Black, Black);
+
+    } else if (enemy_y >= 0 && enemy2_y >= 0) {
+      displayEnemyShip1(enemy_x, enemy_y, Purple);
+      displayEnemyShip2(enemy2_x, enemy2_y, SkyBlue, Red);
+      delay__ms(70);
+      displayEnemyShip1(enemy_x, enemy_y, Black);
+      displayEnemyShip2(enemy2_x, enemy2_y, Black, Black);
+      UFO_y = 63;
+      do {
+        UFO_x = 13 + (rand() % 43);
+      } while (abs(UFO_x - enemy_x) < 8 || abs(UFO_x - enemy2_x) < 8);
+    } else if (enemy_y >= 0 && UFO_y >= 0) {
+      displayEnemyShip1(enemy_x, enemy_y, Purple);
+      displayUFO(UFO_x, UFO_y, Purple, Green, Blue);
+      delay__ms(70);
+      displayEnemyShip1(enemy_x, enemy_y, Black);
+      displayUFO(UFO_x, UFO_y, Black, Black, Black);
+      enemy2_y = 63;
+      do {
+        enemy2_x = 9 + (rand() % 51);
+      } while (abs(enemy2_x - enemy_x) < 8 || abs(enemy2_x - UFO_x) < 8);
+    } else if (enemy2_y >= 0 && UFO_y >= 0) {
+      displayEnemyShip2(enemy2_x, enemy2_y, SkyBlue, Red);
+      displayUFO(UFO_x, UFO_y, Purple, Green, Blue);
+      delay__ms(70);
+      displayEnemyShip2(enemy2_x, enemy2_y, Black, Black);
+      displayUFO(UFO_x, UFO_y, Black, Black, Black);
+      enemy_y = 63;
+      do {
+        enemy_x = 11 + (rand() % 47);
+      } while (abs(enemy_x - enemy2_x) < 8 || abs(enemy_x - UFO_x) < 8);
+    } else if (enemy_y >= 0) {
       displayEnemyShip1(enemy_x, enemy_y, Purple);
       delay__ms(70);
       displayEnemyShip1(enemy_x, enemy_y, Black);
-      if (KillEnemyShip1 == 0) {
-        --enemy_y;
-      } else {
-        enemy_y = -1;
-        KillEnemyShip1 = 0;
-      }
-    } else {
-      enemy_y = 63;
+      enemy2_y = 63;
       do {
-        enemy_x = 9 + (rand() % 51);
-      } while (abs(enemy2_x - enemy_x) < 8);
-    }
-  }
-}
-
-void MovingEnemyShip2(void *p) {
-  while (1) {
-    if (enemy2_y >= 0) {
+        enemy2_x = 9 + (rand() % 51);
+      } while (abs(enemy2_x - enemy_x) < 8 || abs(enemy2_x - UFO_x) < 8);
+      UFO_y = 63;
+      do {
+        UFO_x = 13 + (rand() % 43);
+      } while (abs(UFO_x - enemy_x) < 8 || abs(UFO_x - enemy2_x) < 8);
+    } else if (enemy2_y >= 0) {
       displayEnemyShip2(enemy2_x, enemy2_y, SkyBlue, Red);
       delay__ms(70);
       displayEnemyShip2(enemy2_x, enemy2_y, Black, Black);
-      if (KillEnemyShip2 == 0) {
-        enemy2_y--;
-      } else {
-        enemy2_y = -1;
-        KillEnemyShip2 = 0;
-      }
-    } else {
+      enemy_y = 63;
+      do {
+        enemy_x = 11 + (rand() % 47);
+      } while (abs(enemy_x - enemy2_x) < 8 || abs(enemy_x - UFO_x) < 8);
+      UFO_y = 63;
+      do {
+        UFO_x = 13 + (rand() % 43);
+      } while (abs(UFO_x - enemy_x) < 8 || abs(UFO_x - enemy2_x) < 8);
+    } else if (UFO_y >= 0) {
+      displayUFO(UFO_x, UFO_y, Purple, Green, Blue);
+      delay__ms(70);
+      displayUFO(UFO_x, UFO_y, Black, Black, Black);
+      enemy_y = 63;
+      do {
+        enemy_x = 11 + (rand() % 47);
+      } while (abs(enemy_x - enemy2_x) < 8 || abs(enemy_x - UFO_x) < 8);
       enemy2_y = 63;
       do {
-        enemy2_x = 11 + (rand() % 47);
-      } while (abs(enemy2_x - enemy_x) < 8);
+        enemy2_x = 9 + (rand() % 51);
+      } while (abs(enemy2_x - enemy_x) < 8 || abs(enemy2_x - UFO_x) < 8);
+    } else {
+      UFO_y = 63;
+      do {
+        UFO_x = 13 + (rand() % 43);
+      } while (abs(UFO_x - enemy_x) < 8 || abs(UFO_x - enemy2_x) < 8);
+      enemy_y = 63;
+      do {
+        enemy_x = 11 + (rand() % 47);
+      } while (abs(enemy_x - enemy2_x) < 8 || abs(enemy_x - UFO_x) < 8);
+      enemy2_y = 63;
+      do {
+        enemy2_x = 9 + (rand() % 51);
+      } while (abs(enemy2_x - enemy_x) < 8 || abs(enemy2_x - UFO_x) < 8);
+    }
+    if (KillEnemyShip1 == 0) {
+      --enemy_y;
+    } else {
+      enemy_y = -1;
+      KillEnemyShip1 = 0;
+    }
+    if (KillEnemyShip2 == 0) {
+      // if (Limited_MoveMent == 0) {
+      enemy2_y--;
+      //}
+    } else {
+      enemy2_y = -1;
+      KillEnemyShip2 = 0;
+    }
+    if (KillUFO == 0) {
+      UFO_y--;
+    } else {
+      UFO_y = -1;
+      KillUFO = 0;
     }
   }
 }
-
 void UpdateEnemyBullet() {
   if (NumberOfBullet == -1 || EnemyBullet1_pos_y[0] >= 0) {
     NumberOfBullet++; // in this
@@ -194,6 +286,26 @@ void collisionDetectionEnemyShipToSpaceShip() {
              PixelCheckEnemy(enemy2_x - 4, enemy2_y - 1)) {
     SpaceShipLifeCount--;
     changethecolor = 1;
+  } else if (PixelCheckEnemy(UFO_x, UFO_y) || PixelCheckEnemy(UFO_x, UFO_y - 1) || PixelCheckEnemy(UFO_x, UFO_y - 2) ||
+             PixelCheckEnemy(UFO_x, UFO_y - 3) || PixelCheckEnemy(UFO_x, UFO_y - 4) ||
+             PixelCheckEnemy(UFO_x, UFO_y - 5) || PixelCheckEnemy(UFO_x, UFO_y - 6) ||
+             PixelCheckEnemy(UFO_x, UFO_y - 7) || PixelCheckEnemy(UFO_x, UFO_y - 8) ||
+             PixelCheckEnemy(UFO_x - 1, UFO_y - 1) || PixelCheckEnemy(UFO_x - 1, UFO_y - 2) ||
+             PixelCheckEnemy(UFO_x - 1, UFO_y - 3) || PixelCheckEnemy(UFO_x - 1, UFO_y - 4) ||
+             PixelCheckEnemy(UFO_x - 1, UFO_y - 5) || PixelCheckEnemy(UFO_x - 1, UFO_y - 6) ||
+             PixelCheckEnemy(UFO_x - 1, UFO_y - 7) || PixelCheckEnemy(UFO_x + 1, UFO_y - 1) ||
+             PixelCheckEnemy(UFO_x + 1, UFO_y - 2) || PixelCheckEnemy(UFO_x + 1, UFO_y - 3) ||
+             PixelCheckEnemy(UFO_x + 1, UFO_y - 4) || PixelCheckEnemy(UFO_x + 1, UFO_y - 5) ||
+             PixelCheckEnemy(UFO_x + 1, UFO_y - 6) || PixelCheckEnemy(UFO_x + 1, UFO_y - 7) ||
+             PixelCheckEnemy(UFO_x + 2, UFO_y - 2) || PixelCheckEnemy(UFO_x + 2, UFO_y - 3) ||
+             PixelCheckEnemy(UFO_x + 2, UFO_y - 4) || PixelCheckEnemy(UFO_x + 2, UFO_y - 5) ||
+             PixelCheckEnemy(UFO_x + 2, UFO_y - 6) || PixelCheckEnemy(UFO_x - 2, UFO_y - 2) ||
+             PixelCheckEnemy(UFO_x - 2, UFO_y - 3) || PixelCheckEnemy(UFO_x - 2, UFO_y - 4) ||
+             PixelCheckEnemy(UFO_x - 2, UFO_y - 5) || PixelCheckEnemy(UFO_x - 2, UFO_y - 6) ||
+             PixelCheckEnemy(UFO_x - 3, UFO_y - 3) || PixelCheckEnemy(UFO_x - 3, UFO_y - 4) ||
+             PixelCheckEnemy(UFO_x - 3, UFO_y - 5)) {
+    SpaceShipLifeCount--;
+    changethecolor = 1;
   }
 }
 
@@ -241,7 +353,95 @@ void collisionDetectionBulletToEnemy() {
       displayScore(ScoreCounter, 0, 1, Black);
       ScoreCounter += 10;
       displayScore(ScoreCounter, 0, 1, White);
+    } else if ((SpaceShipBullet_pos_x[i] == UFO_x &&
+                (SpaceShipBullet_pos_y[i] <= UFO_y && SpaceShipBullet_pos_y[i] >= UFO_y - 8)) ||
+               ((SpaceShipBullet_pos_x[i] == UFO_x - 1 || SpaceShipBullet_pos_x[i] == UFO_x + 1) &&
+                (SpaceShipBullet_pos_y[i] <= UFO_y - 1 && SpaceShipBullet_pos_y[i] >= UFO_y - 7)) ||
+               ((SpaceShipBullet_pos_x[i] == UFO_x - 2 || SpaceShipBullet_pos_x[i] == UFO_x + 2) &&
+                (SpaceShipBullet_pos_y[i] <= UFO_y - 2 && SpaceShipBullet_pos_y[i] >= UFO_y - 6)) ||
+               (SpaceShipBullet_pos_x[i] == UFO_x - 3 &&
+                (SpaceShipBullet_pos_y[i] <= UFO_y - 3 && SpaceShipBullet_pos_y[i] >= UFO_y - 5))) {
+      if (TriggerAnimationIndex < 9) {
+        TriggerAnimationIndex++;
+        TriggerAnimation[TriggerAnimationIndex] = 1;
+        KillAnimationPos[TriggerAnimationIndex][0] = SpaceShipBullet_pos_x[i];
+        KillAnimationPos[TriggerAnimationIndex][1] = SpaceShipBullet_pos_y[i] + 2;
+      }
+      KillUFO = 1;
+      SpaceShipBullet_pos_x[i] = SpaceShipBullet_pos_x[i + 1];
+      SpaceShipBullet_pos_y[i] = SpaceShipBullet_pos_y[i + 1];
+      NumberOfBulletS--;
+      displayScore(ScoreCounter, 0, 1, Black);
+      ScoreCounter += 25;
+      displayScore(ScoreCounter, 0, 1, White);
     }
+  }
+}
+void collisionDetectionSuperCanon(int centerpos, int y) {
+  NumberOfBullet_Remaining = -1;
+  for (int i = 0; i <= NumberOfBullet; i++) {
+    if (EnemyBullet1_masking[i] == 0) {
+      if ((centerpos == EnemyBullet1_pos_x[i] && y + 2 == EnemyBullet1_pos_y[i]) ||
+          (centerpos + 1 == EnemyBullet1_pos_x[i] && y + 2 == EnemyBullet1_pos_y[i]) ||
+          (centerpos - 1 == EnemyBullet1_pos_x[i] && y + 2 == EnemyBullet1_pos_y[i]) ||
+          (centerpos == EnemyBullet1_pos_x[i] && y + 1 == EnemyBullet1_pos_y[i]) ||
+          (centerpos + 1 == EnemyBullet1_pos_x[i] && y + 1 == EnemyBullet1_pos_y[i]) ||
+          (centerpos - 1 == EnemyBullet1_pos_x[i] && y + 1 == EnemyBullet1_pos_y[i]) ||
+          (centerpos + 2 == EnemyBullet1_pos_x[i] && y + 1 == EnemyBullet1_pos_y[i]) ||
+          (centerpos - 2 == EnemyBullet1_pos_x[i] && y + 1 == EnemyBullet1_pos_y[i]) ||
+          (centerpos == EnemyBullet1_pos_x[i] && y == EnemyBullet1_pos_y[i]) ||
+          (centerpos + 1 == EnemyBullet1_pos_x[i] && y == EnemyBullet1_pos_y[i]) ||
+          (centerpos - 1 == EnemyBullet1_pos_x[i] && y == EnemyBullet1_pos_y[i]) ||
+          (centerpos + 2 == EnemyBullet1_pos_x[i] && y == EnemyBullet1_pos_y[i]) ||
+          (centerpos - 2 == EnemyBullet1_pos_x[i] && y == EnemyBullet1_pos_y[i]) ||
+          (centerpos == EnemyBullet1_pos_x[i] && y - 1 == EnemyBullet1_pos_y[i]) ||
+          (centerpos + 1 == EnemyBullet1_pos_x[i] && y - 1 == EnemyBullet1_pos_y[i]) ||
+          (centerpos - 1 == EnemyBullet1_pos_x[i] && y - 1 == EnemyBullet1_pos_y[i]) ||
+          (centerpos + 2 == EnemyBullet1_pos_x[i] && y - 1 == EnemyBullet1_pos_y[i]) ||
+          (centerpos - 2 == EnemyBullet1_pos_x[i] && y - 1 == EnemyBullet1_pos_y[i]) ||
+          (centerpos == EnemyBullet1_pos_x[i] && y - 2 == EnemyBullet1_pos_y[i]) ||
+          (centerpos + 1 == EnemyBullet1_pos_x[i] && y - 2 == EnemyBullet1_pos_y[i]) ||
+          (centerpos - 1 == EnemyBullet1_pos_x[i] && y - 2 == EnemyBullet1_pos_y[i])) {
+        EnemyBullet1_masking[i] = 1;
+      }
+    }
+  }
+  for (int i = 0; i <= NumberOfBullet; i++) {
+    if (EnemyBullet1_masking[i] == 0) {
+      NumberOfBullet_Remaining++;
+      EnemyBullet1_pos_x[NumberOfBullet_Remaining] = EnemyBullet1_pos_x[i];
+      EnemyBullet1_pos_y[NumberOfBullet_Remaining] = EnemyBullet1_pos_y[i];
+    } else {
+      EnemyBullet1_masking[i] = 0;
+    }
+  }
+  NumberOfBullet = NumberOfBullet_Remaining;
+  if (centerpos >= enemy_x - 3 && centerpos <= enemy_x + 3 && y >= enemy_y - 10 && y <= enemy_y + 2) {
+    supertrigger = 1;
+    superKillAnimationPos[0] = enemy_x;
+    superKillAnimationPos[1] = enemy_y;
+    KillEnemyShip1 = 1;
+    displayScore(ScoreCounter, 0, 1, Black);
+    ScoreCounter += 15;
+    displayScore(ScoreCounter, 0, 1, White);
+  }
+  if (centerpos >= enemy2_x - 6 && centerpos <= enemy2_x + 6 && y >= enemy2_y - 8 && y <= enemy2_y + 1) {
+    supertrigger = 1;
+    superKillAnimationPos[0] = enemy2_x;
+    superKillAnimationPos[1] = enemy2_y;
+    KillEnemyShip2 = 1;
+    displayScore(ScoreCounter, 0, 1, Black);
+    ScoreCounter += 10;
+    displayScore(ScoreCounter, 0, 1, White);
+  }
+  if (centerpos >= UFO_x - 6 && centerpos <= UFO_x + 5 && y >= UFO_y - 10 && y <= UFO_y + 2) {
+    supertrigger = 1;
+    superKillAnimationPos[0] = UFO_x;
+    superKillAnimationPos[1] = UFO_y;
+    KillUFO = 1;
+    displayScore(ScoreCounter, 0, 1, Black);
+    ScoreCounter += 25;
+    displayScore(ScoreCounter, 0, 1, White);
   }
 }
 void collisionDetectionBulletToBullet() {
@@ -315,35 +515,86 @@ void collisionDetectionBulletToSpaceShip() {
 }
 void EnemyBullet(void *p) {
   while (1) {
+    if (ThreePhaseBullet == 0) {
+      if (ThreePhaseCounter < 3) {
+        if (ThreePhaseCounter == 0) {
+          // ThreePhaseBullet = 1;
+          Limited_MoveMent = 1;
+          EnemyBullet2_pos_x[0] = enemy2_x;
+          EnemyBullet2_pos_y[0] = enemy2_y - 7;
+        }
+        displayPixel(EnemyBullet2_pos_x[0], EnemyBullet2_pos_y[0], Blue);
+        displayPixel(EnemyBullet2_pos_x[0] - 1, EnemyBullet2_pos_y[0] - 1, Blue);
+      } else if (ThreePhaseCounter < 5) {
+        if (ThreePhaseCounter == 3) {
+          EnemyBullet2_pos_x[1] = enemy2_x;
+          EnemyBullet2_pos_y[1] = enemy2_y - 7;
+        }
+        displayPixel(EnemyBullet2_pos_x[0], EnemyBullet2_pos_y[0], Blue);
+        displayPixel(EnemyBullet2_pos_x[0] - 1, EnemyBullet2_pos_y[0] - 1, Blue);
+        displayPixel(EnemyBullet2_pos_x[1], EnemyBullet2_pos_y[1], Blue);
+        displayPixel(EnemyBullet2_pos_x[1], EnemyBullet2_pos_y[1] - 1, Blue);
+      } else {
+        if (ThreePhaseCounter == 5) {
+          EnemyBullet2_pos_x[2] = enemy2_x;
+          EnemyBullet2_pos_y[2] = enemy2_y - 7;
+        }
+        if (ThreePhaseCounter == 6) {
+          Limited_MoveMent = 0;
+        }
+        displayPixel(EnemyBullet2_pos_x[0], EnemyBullet2_pos_y[0], Blue);
+        displayPixel(EnemyBullet2_pos_x[0] - 1, EnemyBullet2_pos_y[0] - 1, Blue);
+        displayPixel(EnemyBullet2_pos_x[1], EnemyBullet2_pos_y[1], Blue);
+        displayPixel(EnemyBullet2_pos_x[1], EnemyBullet2_pos_y[1] - 1, Blue);
+        displayPixel(EnemyBullet2_pos_x[2], EnemyBullet2_pos_y[2], Blue);
+        displayPixel(EnemyBullet2_pos_x[2] + 1, EnemyBullet2_pos_y[2] - 1, Blue);
+      }
+      ThreePhaseCounter++;
+    }
+    for (int i = 0; i <= NumberOfBullet; i++) {
+      displayPixel(EnemyBullet1_pos_x[i], EnemyBullet1_pos_y[i], Red);
+      displayPixel(EnemyBullet1_pos_x[i], EnemyBullet1_pos_y[i] - 1, Red);
+    }
+    delay__ms(30);
+    for (int i = 0; i <= 15; i++) {
+      displayPixel(EnemyBullet1_pos_x[i], EnemyBullet1_pos_y[i], Black);
+      displayPixel(EnemyBullet1_pos_x[i], EnemyBullet1_pos_y[i] - 1, Black);
+    }
+    displayPixel(EnemyBullet2_pos_x[0], EnemyBullet2_pos_y[0], Black);
+    displayPixel(EnemyBullet2_pos_x[0] - 1, EnemyBullet2_pos_y[0] - 1, Black);
+    displayPixel(EnemyBullet2_pos_x[1], EnemyBullet2_pos_y[1], Black);
+    displayPixel(EnemyBullet2_pos_x[1], EnemyBullet2_pos_y[1] - 1, Black);
+    displayPixel(EnemyBullet2_pos_x[2], EnemyBullet2_pos_y[2], Black);
+    displayPixel(EnemyBullet2_pos_x[2] + 1, EnemyBullet2_pos_y[2] - 1, Black);
+    for (int i = 0; i <= NumberOfBullet; i++) {
+      EnemyBullet1_pos_y[i] = EnemyBullet1_pos_y[i] - 1;
+    }
+    EnemyBullet2_pos_x[0] = EnemyBullet2_pos_x[0] - 1;
+    EnemyBullet2_pos_y[0] = EnemyBullet2_pos_y[0] - 1;
+    EnemyBullet2_pos_y[1] = EnemyBullet2_pos_y[1] - 1;
+    EnemyBullet2_pos_x[2] = EnemyBullet2_pos_x[2] + 1;
+    EnemyBullet2_pos_y[2] = EnemyBullet2_pos_y[2] - 1;
+    if ((EnemyBullet2_pos_x[0] <= 0 || EnemyBullet2_pos_y[0] <= 0) && (EnemyBullet2_pos_y[1] <= 0) &&
+        (EnemyBullet2_pos_x[2] >= 63 || EnemyBullet2_pos_y[2] <= 0)) {
+      // ThreePhaseBullet = 0;
+      ThreePhaseCounter = 0;
+    }
+    collisionDetectionBulletToBullet();
+    collisionDetectionBulletToSpaceShip();
+    updatecount++;
     if (NumberOfBullet == -1) {
       UpdateEnemyBullet();
-    } else {
-      for (int i = 0; i <= NumberOfBullet; i++) {
-        displayPixel(EnemyBullet1_pos_x[i], EnemyBullet1_pos_y[i], Red);
-        displayPixel(EnemyBullet1_pos_x[i], EnemyBullet1_pos_y[i] - 1, Red);
-      }
-      delay__ms(30);
-      for (int i = 0; i <= NumberOfBullet; i++) {
-        displayPixel(EnemyBullet1_pos_x[i], EnemyBullet1_pos_y[i], Black);
-        displayPixel(EnemyBullet1_pos_x[i], EnemyBullet1_pos_y[i] - 1, Black);
-      }
-      for (int i = 0; i <= NumberOfBullet; i++) {
-        EnemyBullet1_pos_y[i] = EnemyBullet1_pos_y[i] - 1;
-      }
-      collisionDetectionBulletToBullet();
-      collisionDetectionBulletToSpaceShip();
-      updatecount++;
-      if (updatecount == 40) {
-        UpdateEnemyBullet();
-        updatecount = 0;
-      }
+    }
+    if (updatecount == 40) {
+      UpdateEnemyBullet();
+      updatecount = 0;
     }
   }
 }
 void moveSpaceShip(void *p) {
   int counter = 0;
   while (1) {
-    pos = getSpaceshipPos();
+    pos = (generate_super_weapon == 0) ? getSpaceshipPos() : pos;
     if (changethecolor == 0) {
       displaySpaceShip(pos, SkyBlue);
       collisionDetectionEnemyShipToSpaceShip();
@@ -368,7 +619,7 @@ void LifeDisplay(void *p) {
       vTaskSuspend(SpaceShipBullet_handle);
       vTaskSuspend(EnemyBullet_handle);
       vTaskSuspend(MovingEnemyShip1_handle);
-      vTaskSuspend(MovingEnemyShip2_handle);
+      // vTaskSuspend(MovingEnemyShip2_handle);
       displayEndScreen(ScoreCounter);
     } else
       HealthMeter(SpaceShipLifeCount);
@@ -385,6 +636,16 @@ void SpaceShipBullet(void *p) {
         SpaceShipBullet_pos_y[NumberOfBulletS] = 10;
       }
       generate_new_bullet = 0;
+    }
+    if (generate_super_weapon == 1) {
+      int centerpos = pos;
+      SuperWeaPonPhaseOne(centerpos);
+      generate_super_weapon = 0;
+      for (int i = 13; i <= 66; i++) {
+        SuperWeaPonPhaseTwo(centerpos, i);
+        collisionDetectionSuperCanon(centerpos, i);
+      }
+      // generate_super_weapon = 0;
     }
     for (int i = 0; i <= NumberOfBulletS; i++) {
       displayPixel(SpaceShipBullet_pos_x[i], SpaceShipBullet_pos_y[i], White);
@@ -411,7 +672,6 @@ void SpaceShipBullet(void *p) {
     collisionDetectionBulletToEnemy();
   }
 }
-
 void refreshdisplay(void *p) {
   while (1) {
     display();
@@ -431,6 +691,12 @@ void TitleScreen(void *p) {
 }
 void KillAnimationTask(void *p) {
   while (1) {
+    if (supertrigger == 1) {
+      KillAnimation(superKillAnimationPos[0], superKillAnimationPos[1]);
+      KillAnimation(superKillAnimationPos[0] + 4, superKillAnimationPos[1] - 6);
+      KillAnimation(superKillAnimationPos[0] - 2, superKillAnimationPos[1] - 3);
+      supertrigger = 0;
+    }
     for (int i = 9; i >= 0; i--) {
       if (TriggerAnimation[i] == 1) {
         TriggerAnimation[i] = 0;
@@ -440,10 +706,11 @@ void KillAnimationTask(void *p) {
     }
   }
 }
-
 int main(void) {
   sw1 = gpio__construct_as_input(0, 29);
+  (void)gpio__construct_as_input(0, 30);
   LPC_GPIOINT->IO0IntEnF = (1 << 29);
+  LPC_GPIOINT->IO0IntEnR = (1 << 30);
   displayInit();
   acceleration__init();
   EnemyBullet1_pos_y[0] = 1;
@@ -458,7 +725,6 @@ int main(void) {
   xTaskCreate(EnemyBullet, "EB", 2048U, 0, 1, &EnemyBullet_handle);
   xTaskCreate(KillAnimationTask, "KAT", 1024U, 0, 1, 0);
   xTaskCreate(MovingEnemyShip1, "Enemyship1", 2048U, 0, 2, &MovingEnemyShip1_handle);
-  xTaskCreate(MovingEnemyShip2, "Enemyship2", 2048U, 0, 2, &MovingEnemyShip2_handle);
 
   xTaskCreate(refreshdisplay, "refresh display", 2048U, 0, 4, 0);
 

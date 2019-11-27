@@ -63,3 +63,6 @@ void displayWord_SCORE(int row, int col, int color);
 void StartScreen(void);
 void displayEndScreen(int);
 void HealthMeter(int);
+void SuperWeaPonPhaseOne(int centerpos);
+void SuperWeaPonPhaseTwo(int centerpos, int moveingpos);
+void displayUFO(int row, int col, int color1, int coloroutershell, int colorthreedot);
