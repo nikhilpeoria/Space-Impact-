@@ -262,7 +262,7 @@ void UpdateEnemyBullet() {
 
 int getSpaceshipPos() {
   acc = acceleration__get_data();
-  if (abs(acc.x - prev_acc) > 50) {
+  if (abs(acc.x - prev_acc) > 30) {
     prev_acc = acc.x;
     if ((acc.x < 3400) && (acc.x > 2048)) {
       sp = 10;
