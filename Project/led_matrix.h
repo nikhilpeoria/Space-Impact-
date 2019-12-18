@@ -67,6 +67,4 @@ void UFODiagonalOn(int centerposx, int centerposy);
 void UFODiagonalOff(int centerposx, int centerposy);
 void BossDisplay(int centerposx, int centerposy, int tail_swing);
 void BOSSWEAPON(int centerposx, int centerposy);
-// void SuperWeaPonPhaseOne(int centerpos);
-// void SuperWeaPonPhaseTwo(int centerpos, int moveingpos);
 void displayUFO(int row, int col, int color1, int coloroutershell, int colorthreedot);
