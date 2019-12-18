@@ -380,7 +380,7 @@ void BOSS_COUNT_DOWN(void *p) {
 }
 void BOSS_BATTLE(void *p) {
   while (1) {
-    if (BOSS_LIFE == 0) {
+    if (BOSS_LIFE <= 0) {
       KillAnimation(BOSS_X, BOSS_Y + 1);
       delay__ms(100);
       KillAnimation(BOSS_X - 2, BOSS_Y + 4);
@@ -1071,7 +1071,6 @@ int main(void) {
   uart__init(UART__3, 96 * 1000 * 1000, 9600);                       // Initialize UART3
   gpio__construct_with_function(GPIO__PORT_4, 28, GPIO__FUNCTION_2); // Enable TX3
   gpio__construct_with_function(GPIO__PORT_4, 29, GPIO__FUNCTION_2); // Enable RX3
-  sendCommand(0x06, 0x0016);
   sendCommand(0x08, 0x0003);
 
   sw1 = gpio__construct_as_input(0, 17); // change from 29 to 17
