@@ -663,7 +663,277 @@ void KillAnimation(int row, int col) {
   displayPixel(row + 1, col + 3, Black);
   displayPixel(row + 2, col + 3, Black);
 }
-void SuperWeaPonPhaseOne(int centerpos) {
+void UFODiagonalOn(int centerposx, int centerposy) {
+  displayPixel(centerposx, centerposy, Yellow);
+  displayPixel(centerposx - 1, centerposy, Yellow);
+  displayPixel(centerposx + 1, centerposy, Yellow);
+  displayPixel(centerposx, centerposy - 1, Yellow);
+  displayPixel(centerposx, centerposy + 1, Yellow);
+}
+void UFODiagonalOff(int centerposx, int centerposy) {
+  displayPixel(centerposx, centerposy, Black);
+  displayPixel(centerposx - 1, centerposy, Black);
+  displayPixel(centerposx + 1, centerposy, Black);
+  displayPixel(centerposx, centerposy - 1, Black);
+  displayPixel(centerposx, centerposy + 1, Black);
+}
+void BOSSWEAPON(int centerposx, int centerposy) {
+  displayPixel(centerposx, centerposy, Purple);
+  displayPixel(centerposx - 1, centerposy, Purple);
+  displayPixel(centerposx + 1, centerposy, Purple);
+  displayPixel(centerposx, centerposy - 1, Purple);
+  displayPixel(centerposx, centerposy + 1, Purple);
+}
+void BossDisplay(int centerposx, int centerposy, int tail_swing) {
+  // body
+  displayPixel(centerposx, centerposy, Red);
+  displayPixel(centerposx - 1, centerposy + 1, Red);
+  displayPixel(centerposx - 2, centerposy + 2, Red);
+  displayPixel(centerposx - 3, centerposy + 3, Red);
+  displayPixel(centerposx - 4, centerposy + 4, Red);
+  displayPixel(centerposx - 5, centerposy + 5, Red);
+  displayPixel(centerposx + 1, centerposy + 1, Red);
+  displayPixel(centerposx + 2, centerposy + 2, Red);
+  displayPixel(centerposx + 3, centerposy + 3, Red);
+  displayPixel(centerposx + 4, centerposy + 4, Red);
+  displayPixel(centerposx + 5, centerposy + 5, Red);
+
+  displayPixel(centerposx, centerposy + 1, Red);
+  displayPixel(centerposx - 1, centerposy + 2, Red);
+  displayPixel(centerposx - 2, centerposy + 3, Red);
+  displayPixel(centerposx - 3, centerposy + 4, Red);
+  displayPixel(centerposx + 1, centerposy + 2, Red);
+  displayPixel(centerposx + 2, centerposy + 3, Red);
+  displayPixel(centerposx + 3, centerposy + 4, Red);
+
+  displayPixel(centerposx - 1, centerposy + 3, Red);
+  displayPixel(centerposx + 1, centerposy + 3, Red);
+
+  // right arm
+  displayPixel(centerposx - 6, centerposy + 5, Red);
+  displayPixel(centerposx - 7, centerposy + 5, Red);
+  displayPixel(centerposx - 8, centerposy + 5, Red);
+  displayPixel(centerposx - 9, centerposy + 5, Red);
+  displayPixel(centerposx - 10, centerposy + 5, Red);
+  displayPixel(centerposx - 11, centerposy + 5, Red);
+  displayPixel(centerposx - 12, centerposy + 5, Red);
+
+  displayPixel(centerposx - 6, centerposy + 6, Red);
+  displayPixel(centerposx - 7, centerposy + 6, Red);
+  displayPixel(centerposx - 8, centerposy + 6, Red);
+  displayPixel(centerposx - 9, centerposy + 6, Red);
+  displayPixel(centerposx - 10, centerposy + 6, Red);
+  displayPixel(centerposx - 11, centerposy + 6, Red);
+
+  displayPixel(centerposx - 10, centerposy + 7, Red);
+
+  displayPixel(centerposx - 6, centerposy + 4, Red);
+  displayPixel(centerposx - 7, centerposy + 4, Red);
+  displayPixel(centerposx - 8, centerposy + 4, Red);
+  displayPixel(centerposx - 9, centerposy + 4, Red);
+  displayPixel(centerposx - 10, centerposy + 4, Red);
+  displayPixel(centerposx - 11, centerposy + 4, Red);
+
+  displayPixel(centerposx - 7, centerposy + 3, Red);
+  displayPixel(centerposx - 8, centerposy + 3, Red);
+  displayPixel(centerposx - 10, centerposy + 3, Red);
+
+  displayPixel(centerposx - 7, centerposy + 2, Red);
+  displayPixel(centerposx - 8, centerposy + 2, Red);
+
+  displayPixel(centerposx - 7, centerposy + 1, Red);
+
+  // left arm
+  displayPixel(centerposx + 6, centerposy + 5, Red);
+  displayPixel(centerposx + 7, centerposy + 5, Red);
+  displayPixel(centerposx + 8, centerposy + 5, Red);
+  displayPixel(centerposx + 9, centerposy + 5, Red);
+  displayPixel(centerposx + 10, centerposy + 5, Red);
+  displayPixel(centerposx + 11, centerposy + 5, Red);
+  displayPixel(centerposx + 12, centerposy + 5, Red);
+
+  displayPixel(centerposx + 6, centerposy + 6, Red);
+  displayPixel(centerposx + 7, centerposy + 6, Red);
+  displayPixel(centerposx + 8, centerposy + 6, Red);
+  displayPixel(centerposx + 9, centerposy + 6, Red);
+  displayPixel(centerposx + 10, centerposy + 6, Red);
+  displayPixel(centerposx + 11, centerposy + 6, Red);
+
+  displayPixel(centerposx + 10, centerposy + 7, Red);
+
+  displayPixel(centerposx + 6, centerposy + 4, Red);
+  displayPixel(centerposx + 7, centerposy + 4, Red);
+  displayPixel(centerposx + 8, centerposy + 4, Red);
+  displayPixel(centerposx + 9, centerposy + 4, Red);
+  displayPixel(centerposx + 10, centerposy + 4, Red);
+  displayPixel(centerposx + 11, centerposy + 4, Red);
+
+  displayPixel(centerposx + 7, centerposy + 3, Red);
+  displayPixel(centerposx + 8, centerposy + 3, Red);
+  displayPixel(centerposx + 10, centerposy + 3, Red);
+
+  displayPixel(centerposx + 7, centerposy + 2, Red);
+  displayPixel(centerposx + 8, centerposy + 2, Red);
+
+  displayPixel(centerposx + 7, centerposy + 1, Red);
+  // tail
+  if (tail_swing == 0) {
+    displayPixel(centerposx, centerposy + 4, Red);
+    displayPixel(centerposx, centerposy + 6, Red);
+    displayPixel(centerposx, centerposy + 8, Red);
+    displayPixel(centerposx, centerposy + 10, Red);
+    displayPixel(centerposx, centerposy + 12, Red);
+    displayPixel(centerposx + 1, centerposy + 5, Red);
+    displayPixel(centerposx + 1, centerposy + 9, Red);
+    displayPixel(centerposx - 1, centerposy + 7, Red);
+    displayPixel(centerposx - 1, centerposy + 11, Red);
+  } else if (tail_swing == 1 || tail_swing == 3) {
+    displayPixel(centerposx, centerposy + 4, Red);
+    displayPixel(centerposx, centerposy + 6, Red);
+    displayPixel(centerposx, centerposy + 8, Red);
+    displayPixel(centerposx, centerposy + 10, Red);
+    displayPixel(centerposx, centerposy + 12, Red);
+    displayPixel(centerposx, centerposy + 5, Red);
+    displayPixel(centerposx, centerposy + 9, Red);
+    displayPixel(centerposx, centerposy + 7, Red);
+    displayPixel(centerposx, centerposy + 11, Red);
+  } else if (tail_swing == 2) {
+    displayPixel(centerposx, centerposy + 4, Red);
+    displayPixel(centerposx, centerposy + 6, Red);
+    displayPixel(centerposx, centerposy + 8, Red);
+    displayPixel(centerposx, centerposy + 10, Red);
+    displayPixel(centerposx, centerposy + 12, Red);
+    displayPixel(centerposx - 1, centerposy + 5, Red);
+    displayPixel(centerposx - 1, centerposy + 9, Red);
+    displayPixel(centerposx + 1, centerposy + 7, Red);
+    displayPixel(centerposx + 1, centerposy + 11, Red);
+  }
+  delay__ms(100);
+  // body
+  displayPixel(centerposx, centerposy, Black);
+  displayPixel(centerposx - 1, centerposy + 1, Black);
+  displayPixel(centerposx - 2, centerposy + 2, Black);
+  displayPixel(centerposx - 3, centerposy + 3, Black);
+  displayPixel(centerposx - 4, centerposy + 4, Black);
+  displayPixel(centerposx - 5, centerposy + 5, Black);
+  displayPixel(centerposx + 1, centerposy + 1, Black);
+  displayPixel(centerposx + 2, centerposy + 2, Black);
+  displayPixel(centerposx + 3, centerposy + 3, Black);
+  displayPixel(centerposx + 4, centerposy + 4, Black);
+  displayPixel(centerposx + 5, centerposy + 5, Black);
+
+  displayPixel(centerposx, centerposy + 1, Black);
+  displayPixel(centerposx - 1, centerposy + 2, Black);
+  displayPixel(centerposx - 2, centerposy + 3, Black);
+  displayPixel(centerposx - 3, centerposy + 4, Black);
+  displayPixel(centerposx + 1, centerposy + 2, Black);
+  displayPixel(centerposx + 2, centerposy + 3, Black);
+  displayPixel(centerposx + 3, centerposy + 4, Black);
+
+  displayPixel(centerposx - 1, centerposy + 3, Black);
+  displayPixel(centerposx + 1, centerposy + 3, Black);
+
+  // right arm
+  displayPixel(centerposx - 6, centerposy + 5, Black);
+  displayPixel(centerposx - 7, centerposy + 5, Black);
+  displayPixel(centerposx - 8, centerposy + 5, Black);
+  displayPixel(centerposx - 9, centerposy + 5, Black);
+  displayPixel(centerposx - 10, centerposy + 5, Black);
+  displayPixel(centerposx - 11, centerposy + 5, Black);
+  displayPixel(centerposx - 12, centerposy + 5, Black);
+
+  displayPixel(centerposx - 6, centerposy + 6, Black);
+  displayPixel(centerposx - 7, centerposy + 6, Black);
+  displayPixel(centerposx - 8, centerposy + 6, Black);
+  displayPixel(centerposx - 9, centerposy + 6, Black);
+  displayPixel(centerposx - 10, centerposy + 6, Black);
+  displayPixel(centerposx - 11, centerposy + 6, Black);
+
+  displayPixel(centerposx - 10, centerposy + 7, Black);
+
+  displayPixel(centerposx - 6, centerposy + 4, Black);
+  displayPixel(centerposx - 7, centerposy + 4, Black);
+  displayPixel(centerposx - 8, centerposy + 4, Black);
+  displayPixel(centerposx - 9, centerposy + 4, Black);
+  displayPixel(centerposx - 10, centerposy + 4, Black);
+  displayPixel(centerposx - 11, centerposy + 4, Black);
+
+  displayPixel(centerposx - 7, centerposy + 3, Black);
+  displayPixel(centerposx - 8, centerposy + 3, Black);
+  displayPixel(centerposx - 10, centerposy + 3, Black);
+
+  displayPixel(centerposx - 7, centerposy + 2, Black);
+  displayPixel(centerposx - 8, centerposy + 2, Black);
+
+  displayPixel(centerposx - 7, centerposy + 1, Black);
+
+  // left arm
+  displayPixel(centerposx + 6, centerposy + 5, Black);
+  displayPixel(centerposx + 7, centerposy + 5, Black);
+  displayPixel(centerposx + 8, centerposy + 5, Black);
+  displayPixel(centerposx + 9, centerposy + 5, Black);
+  displayPixel(centerposx + 10, centerposy + 5, Black);
+  displayPixel(centerposx + 11, centerposy + 5, Black);
+  displayPixel(centerposx + 12, centerposy + 5, Black);
+
+  displayPixel(centerposx + 6, centerposy + 6, Black);
+  displayPixel(centerposx + 7, centerposy + 6, Black);
+  displayPixel(centerposx + 8, centerposy + 6, Black);
+  displayPixel(centerposx + 9, centerposy + 6, Black);
+  displayPixel(centerposx + 10, centerposy + 6, Black);
+  displayPixel(centerposx + 11, centerposy + 6, Black);
+
+  displayPixel(centerposx + 10, centerposy + 7, Black);
+
+  displayPixel(centerposx + 6, centerposy + 4, Black);
+  displayPixel(centerposx + 7, centerposy + 4, Black);
+  displayPixel(centerposx + 8, centerposy + 4, Black);
+  displayPixel(centerposx + 9, centerposy + 4, Black);
+  displayPixel(centerposx + 10, centerposy + 4, Black);
+  displayPixel(centerposx + 11, centerposy + 4, Black);
+
+  displayPixel(centerposx + 7, centerposy + 3, Black);
+  displayPixel(centerposx + 8, centerposy + 3, Black);
+  displayPixel(centerposx + 10, centerposy + 3, Black);
+
+  displayPixel(centerposx + 7, centerposy + 2, Black);
+  displayPixel(centerposx + 8, centerposy + 2, Black);
+
+  displayPixel(centerposx + 7, centerposy + 1, Black);
+  // tail
+  if (tail_swing == 0) {
+    displayPixel(centerposx, centerposy + 4, Black);
+    displayPixel(centerposx, centerposy + 6, Black);
+    displayPixel(centerposx, centerposy + 8, Black);
+    displayPixel(centerposx, centerposy + 10, Black);
+    displayPixel(centerposx, centerposy + 12, Black);
+    displayPixel(centerposx + 1, centerposy + 5, Black);
+    displayPixel(centerposx + 1, centerposy + 9, Black);
+    displayPixel(centerposx - 1, centerposy + 7, Black);
+    displayPixel(centerposx - 1, centerposy + 11, Black);
+  } else if (tail_swing == 1 || tail_swing == 3) {
+    displayPixel(centerposx, centerposy + 4, Black);
+    displayPixel(centerposx, centerposy + 6, Black);
+    displayPixel(centerposx, centerposy + 8, Black);
+    displayPixel(centerposx, centerposy + 10, Black);
+    displayPixel(centerposx, centerposy + 12, Black);
+    displayPixel(centerposx, centerposy + 5, Black);
+    displayPixel(centerposx, centerposy + 9, Black);
+    displayPixel(centerposx, centerposy + 7, Black);
+    displayPixel(centerposx, centerposy + 11, Black);
+  } else if (tail_swing == 2) {
+    displayPixel(centerposx, centerposy + 4, Black);
+    displayPixel(centerposx, centerposy + 6, Black);
+    displayPixel(centerposx, centerposy + 8, Black);
+    displayPixel(centerposx, centerposy + 10, Black);
+    displayPixel(centerposx, centerposy + 12, Black);
+    displayPixel(centerposx - 1, centerposy + 5, Black);
+    displayPixel(centerposx - 1, centerposy + 9, Black);
+    displayPixel(centerposx + 1, centerposy + 7, Black);
+    displayPixel(centerposx + 1, centerposy + 11, Black);
+  }
+}
+/*void SuperWeaPonPhaseOne(int centerpos) {
   displayPixel(centerpos + 5, 18, Red);
   displayPixel(centerpos, 19, Red);
   displayPixel(centerpos - 5, 18, Red);
@@ -853,7 +1123,7 @@ void SuperWeaPonPhaseTwo(int centerpos, int moveingpos) {
   displayPixel(centerpos, moveingpos - 2, Black);
   displayPixel(centerpos + 1, moveingpos - 2, Black);
   displayPixel(centerpos - 1, moveingpos - 2, Black);
-}
+}*/
 void displayWord_SCORE(int row, int col, int color) {
 
   displayPixel(row + 0, col + 0, color); //  S
